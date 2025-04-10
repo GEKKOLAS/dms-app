@@ -132,3 +132,39 @@ export const signOutAction = async () => {
   await supabase.auth.signOut();
   return redirect("/sign-in");
 };
+
+export const createDesign = async (formData: FormData) => {
+  const title = formData.get("title")?.toString();
+  const description = formData.get("description")?.toString();
+  const userId = formData.get("userId")?.toString();
+  const supabase = await createClient();
+
+  if (!title || !description || !userId) {
+    return encodedRedirect(
+      "error",
+      "/designs/create",
+      "Title, description, and user ID are required"
+    );
+  }
+
+  const { data, error } = await supabase
+    .from("designs")
+    .insert([{ title, description, user_id: userId }]);
+
+  if (error) {
+    console.error(error.message);
+    return encodedRedirect(
+      "error",
+      "/designs/create",
+      "Failed to create design"
+    );
+  }
+
+  return encodedRedirect(
+    "success",
+    `/designs/${data[0].id}`,
+    "Design created successfully"
+  );
+};
+
+

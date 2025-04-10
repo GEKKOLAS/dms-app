@@ -1,16 +1,56 @@
-import Hero from "@/components/hero";
+"use client";
 import ConnectSupabaseSteps from "@/components/tutorial/connect-supabase-steps";
 import SignUpUserSteps from "@/components/tutorial/sign-up-user-steps";
-import { hasEnvVars } from "@/utils/supabase/check-env-vars";
 
-export default async function Home() {
+import { createClient } from "@/utils/supabase/client";
+import { useEffect, useState } from "react";
+import PostgrestError from "@supabase/postgrest-js/dist/cjs/PostgrestError";
+import { ProjectsLibrary } from "./components/projectsLibrary";
+
+type Desing = {
+  id: number;
+  title: string;
+  description: string;
+};
+const initialState = {
+  id: -1,
+  first_name: "",
+  last_name: "",
+  age: 0,
+};
+
+export default function Home() {
+  const loadDesings = async () => {
+    try {
+      const supabase = createClient();
+      const { data: desings, error: desingsError } = await supabase
+        .from("desings")
+        .select()
+        .order("id");
+
+      if (desingsError) {
+        setError(desingsError);
+      }
+
+      setDesings(desings);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  useEffect(() => {
+    loadDesings();
+  }, []);
+
+  const [desings, setDesings] = useState<Desing[] | null>();
+  const [error, setError] = useState<PostgrestError>();
   return (
-    <>
-      <Hero />
-      <main className="flex-1 flex flex-col gap-6 px-4">
-        <h2 className="font-medium text-xl mb-4">Next steps</h2>
-        {hasEnvVars ? <SignUpUserSteps /> : <ConnectSupabaseSteps />}
-      </main>
-    </>
+    <main>
+      <div className="grid grid-cols-2 gap-4 ">
+        {desings?.map((desing) => (
+          <ProjectsLibrary {...desing} key={`desing-list-item-${desing.id}`} />
+        ))}
+      </div>
+    </main>
   );
 }
