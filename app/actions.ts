@@ -134,37 +134,25 @@ export const signOutAction = async () => {
 };
 
 export const createDesign = async (formData: FormData) => {
-  const title = formData.get("title")?.toString();
+  try {
+    const title = formData.get("title")?.toString();
   const description = formData.get("description")?.toString();
   const userId = formData.get("userId")?.toString();
   const supabase = await createClient();
+    
+  const {error} = await supabase.from('desings').insert({
+    title,
+    description,
+  });
 
-  if (!title || !description || !userId) {
-    return encodedRedirect(
-      "error",
-      "/designs/create",
-      "Title, description, and user ID are required"
-    );
+  return true;
+  } catch (error) {
+    console.log(error);
+    return false;
+    
   }
-
-  const { data, error } = await supabase
-    .from("designs")
-    .insert([{ title, description, user_id: userId }]);
-
-  if (error) {
-    console.error(error.message);
-    return encodedRedirect(
-      "error",
-      "/designs/create",
-      "Failed to create design"
-    );
-  }
-
-  return encodedRedirect(
-    "success",
-    `/designs/${data[0].id}`,
-    "Design created successfully"
-  );
 };
+
+
 
 
