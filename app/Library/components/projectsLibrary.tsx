@@ -18,6 +18,15 @@ import {
 } from "@/components/ui/dialog";
 import { FileUpload } from "@/components/ui/file-upload";
 import { Input } from "@/components/ui/input"; // Replace with the correct path to your Input component
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectLabel,
+  SelectTrigger,
+  SelectValue,
+} from "@radix-ui/react-select";
 
 type Desing = {
   id: number;
@@ -26,9 +35,9 @@ type Desing = {
   URLImg: string;
 };
 
+
+
 type DesingItemsProps = Desing & {};
-
-
 
 export const ProjectsLibrary: FC<DesingItemsProps> = ({
   id,
@@ -44,6 +53,8 @@ export const ProjectsLibrary: FC<DesingItemsProps> = ({
   const onRefresh = () => {
     window.location.reload();
   };
+
+ 
 
   useEffect(() => {
     const loadDesings = async () => {
@@ -69,43 +80,65 @@ export const ProjectsLibrary: FC<DesingItemsProps> = ({
       console.error("Error deleting design:", error);
     }
   };
+
+
   //refactorizar luego
   const handleEdit = () => {
     const titleInput = document.getElementById("title") as HTMLInputElement;
-    const descriptionInput = document.getElementById(
-      "description"
-    ) as HTMLInputElement;
-
-    if (titleInput && descriptionInput) {
-      const updatedTitle = titleInput.value;
-      const updatedDescription = descriptionInput.value;
-
-      const updateDesign = async () => {
-        try {
-          const supabase = await createClient();
-          const { error } = await supabase
-            .from("desings")
-            .update({ title: updatedTitle, description: updatedDescription })
-            .eq("id", id);
-
-          if (error) throw error;
-
-          console.log(`Design with ID ${id} updated successfully`);
-          onRefresh();
-        } catch (error) {
-          console.error("Error updating design:", error);
-        }
-      };
-
-      updateDesign().catch(console.error);
-    } else {
+    const descriptionInput = document.getElementById("description") as HTMLInputElement;
+  
+    const updatedTitle = titleInput?.value;
+    const updatedDescription = descriptionInput?.value;
+    const imageFile = files[0]; // ✅ Usamos el estado
+  
+    if (!titleInput || !descriptionInput) {
       console.error("Title or description input not found");
+      return;
     }
-  };
+  
+    const updateDesign = async () => {
+      try {
+        const supabase = await createClient();
+        let imageUrl = null;
+  
+        if (imageFile) {
+          const { data: uploadData, error: uploadError } = await supabase.storage
+            .from("design-images")
+            .upload(`designs/${Date.now()}_${imageFile.name}`, imageFile);
+  
+          if (uploadError) throw uploadError;
+  
+          const { data: publicUrlData } = supabase.storage
+            .from("design-images")
+            .getPublicUrl(uploadData.path);
+  
+          imageUrl = publicUrlData.publicUrl;
+        }
+  
+        const { error } = await supabase
+          .from("desings")
+          .update({
+            title: updatedTitle,
+            description: updatedDescription,
+            URLImg: imageUrl,
+          })
+          .eq("id", id);
+  
+        if (error) throw error;
+  
+        console.log(`Design with ID ${id} updated successfully`);
+        onRefresh();
+      } catch (error) {
+        console.error("Error updating design:", JSON.stringify(error, null, 2));
 
-  const handleAssign = () => {
-    console.log(`Assign design with ID ${id}`);
+      }
+    };
+    console.log("ID to update:", id);
+
+  
+    updateDesign().catch(console.error);
   };
+  
 
   return (
     <section>
@@ -167,42 +200,10 @@ export const ProjectsLibrary: FC<DesingItemsProps> = ({
                         <Button type="button" onClick={handleEdit}>
                           Save changes
                         </Button>
-                        
                       </DialogFooter>
                     </DialogContent>
                   </Dialog>
-                  <Dialog>
-                    <DialogTrigger asChild>
-                      <Button variant="outline" className="bg-green-500">
-                        Assing Desing
-                      </Button>
-                    </DialogTrigger>
-                    <DialogContent className="sm:max-w-[425px]">
-                      <DialogHeader>
-                        <DialogTitle>Asign</DialogTitle>
-                        <DialogDescription>
-                          Assing this Desing to a Designer
-                        </DialogDescription>
-                      </DialogHeader>
-                      <div className="grid gap-4 py-4">
-                        <div className="grid grid-cols-4 items-center gap-4">
-                          <label htmlFor="name" className="text-right">
-                            Select Designer
-                          </label>
-                          <Input
-                            id="user"
-                            defaultValue={title}
-                            className="col-span-3"
-                          />
-                        </div>
-                      </div>
-                      <DialogFooter>
-                        <Button type="button" onClick={handleAssign}>
-                          Save changes
-                        </Button>
-                      </DialogFooter>
-                    </DialogContent>
-                  </Dialog>
+                  
                 </div>
               </CardItem>
             </CardBody>

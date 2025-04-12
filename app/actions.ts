@@ -8,6 +8,8 @@ import { redirect } from "next/navigation";
 export const signUpAction = async (formData: FormData) => {
   const email = formData.get("email")?.toString();
   const password = formData.get("password")?.toString();
+  const name = formData.get("name")?.toString();
+  const role = formData.get("role")?.toString();
   const supabase = await createClient();
   const origin = (await headers()).get("origin");
 
@@ -19,13 +21,27 @@ export const signUpAction = async (formData: FormData) => {
     );
   }
 
-  const { error } = await supabase.auth.signUp({
+  const { error, data: user } = await supabase.auth.signUp({
     email,
     password,
     options: {
       emailRedirectTo: `${origin}/auth/callback`,
     },
   });
+
+  const { error: errorSavingUser , data } = await supabase.from('users').insert({
+    name,
+    role,
+    id: user.user?.id,
+
+
+
+  });
+
+  if (errorSavingUser) {
+    console.error(errorSavingUser);
+    return encodedRedirect("error", "/sign-up", errorSavingUser.message);
+  }
 
   if (error) {
     console.error(error.code + " " + error.message);
@@ -53,7 +69,7 @@ export const signInAction = async (formData: FormData) => {
     return encodedRedirect("error", "/sign-in", error.message);
   }
 
-  return redirect("/protected");
+  return redirect("/Library");
 };
 
 export const forgotPasswordAction = async (formData: FormData) => {
