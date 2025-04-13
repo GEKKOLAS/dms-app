@@ -23,6 +23,7 @@ DesignersApp es una aplicación diseñada para gestionar diseños y asignarlos a
 2. Navega al directorio del proyecto:
     ```bash
     cd DesignersApp
+    cd dms-app
     ```
 
 3. Instala las dependencias:
