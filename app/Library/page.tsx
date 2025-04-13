@@ -17,14 +17,7 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import {
-  Select,
-  SelectTrigger,
-  SelectValue,
-  SelectContent,
-  SelectGroup,
-  SelectItem,
-} from "@radix-ui/react-select";
+import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 type Designer = {
   id: number;
@@ -44,25 +37,26 @@ const initialState = {
 };
 
 export default function Home() {
-  const loadDesings = async () => {
-    try {
-      const supabase = createClient();
-      const { data: desings, error: desingsError } = await supabase
-        .from("desings")
-        .select()
-        .order("id");
-
-      if (desingsError) {
-        setError(desingsError);
-      }
-
-      setDesings(desings);
-    } catch (error) {
-      console.error(error);
-    }
-  };
-
   useEffect(() => {
+    const loadDesings = async () => {
+      try {
+        const supabase = createClient();
+        const { data: desings, error: desingsError } = await supabase
+          .from("desings")
+          .select()
+          .order("id");
+
+        if (desingsError) {
+          setError(desingsError);
+        }
+
+        setDesings(desings);
+        console.log("Designs loaded:", desings); // Verifica los datos aquí
+      } catch (error) {
+        console.error("Error loading designs:", error);
+      }
+    };
+
     loadDesings();
   }, []);
 
@@ -120,51 +114,60 @@ export default function Home() {
   const [selectedDesigner, setSelectedDesigner] = useState<string>("");
   const [selectedDesign, setSelectedDesign] = useState<string>("");
 
-  const handleAssign = async (design_id: number) => {
-    if (!selectedDesigner || !design_id) {
+  const handleAssign = async (designId: number) => {
+    if (!selectedDesigner || !designId) {
       console.error("Designer or design not selected");
       return;
     }
-  
+
     try {
       const supabase = createClient();
-  
-      const { error: updateError } = await supabase
-        .from("desings")
-        .update({ assigned_to: selectedDesigner })
-        .eq("id", design_id);
-  
-      if (updateError) throw updateError;
-  
-      const { data: existingAssignment, error: checkError } = await supabase
-        .from("design_assignments")
-        .select()
-        .eq("design_id", design_id)
-        .eq("designer_id", selectedDesigner)
-        .single();
-  
-      if (checkError && checkError.code !== "PGRST116") throw checkError;
-  
-      if (!existingAssignment) {
-        const { error: insertError } = await supabase
-          .from("design_assignments")
-          .insert({
-            design_id,
-            designer_id: selectedDesigner,
-            assigned_at: new Date().toISOString(),
-          });
-  
-        if (insertError) throw insertError;
-      }
-  
-      console.log(`Design ${design_id} assigned to designer ${selectedDesigner}`);
-  
-      // ✅ Clear state & close dialog
 
-      onRefresh();
+      // Inserta la asignación en la tabla `design_assignments`
+      const { error: insertError } = await supabase
+        .from("design_assignments")
+        .insert({
+          design_id: designId,
+          designer_id: selectedDesigner,
+          assigned_at: new Date().toISOString(),
+        });
+
+      if (insertError) {
+        throw insertError;
+      }
+
+      console.log(`Design ${designId} assigned to designer ${selectedDesigner}`);
     } catch (error) {
-      console.error("Error assigning design:", error instanceof Error ? error.message : JSON.stringify(error));
+      console.error(
+        "Error assigning design:",
+        error instanceof Error ? error.message : JSON.stringify(error)
+      );
     }
+  };
+
+  const handleSelectItem = (type: "designer" | "design", value: string) => {
+    if (type === "designer") {
+      console.log("Selected Designer:", value);
+      setSelectedDesigner(value);
+    } else if (type === "design") {
+      console.log("Selected Design:", value);
+      setSelectedDesign(value);
+    }
+  };
+
+  const onSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    if (!selectedDesigner || !selectedDesign) {
+      console.error("Designer or design not selected");
+      return;
+    }
+
+    console.log("Selected Designer:", selectedDesigner);
+    console.log("Selected Design:", selectedDesign);
+
+    await handleAssign(parseInt(selectedDesign));
+    onRefresh();
   };
 
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -174,7 +177,7 @@ export default function Home() {
 
   return (
     <main>
-      <div className="items-center">
+      <div className="flex items-center justify-between mb-4">
         <Dialog>
           <DialogTrigger asChild>
             <Button
@@ -224,7 +227,8 @@ export default function Home() {
           </DialogContent>
         </Dialog>
         <div>
-        <Dialog>
+      </div>
+      <Dialog>
           <DialogTrigger asChild>
             <Button
               variant="outline"
@@ -233,7 +237,6 @@ export default function Home() {
               Assign Design to a Designer
             </Button>
           </DialogTrigger>
-
           <DialogContent className="lg:max-w-[800px] sm:max-w-[600px]">
             <DialogHeader>
               <DialogTitle>Assign Design</DialogTitle>
@@ -242,82 +245,74 @@ export default function Home() {
               </DialogDescription>
             </DialogHeader>
 
-            <form
-              onSubmit={async (e) => {
-                e.preventDefault();
-                console.log("Selected Designer:", selectedDesigner);
-                console.log("Selected Design:", selectedDesign);
-
-                if (!selectedDesigner || !selectedDesign) {
-                  console.error("Designer or design not selected");
-                  return;
-                }
-
-                await handleAssign(parseInt(selectedDesign));
-              }}
-            >
+            <form onSubmit={onSubmit}>
               {/* Select Designer */}
-              <div className="mb-4">
-                <label className="block mb-2 text-sm">Designer</label>
-                <Select onValueChange={(value) => setSelectedDesigner(value)} value={selectedDesigner}>
-                  <SelectTrigger className="w-full">
-                    <SelectValue placeholder="Select a Designer" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectGroup>
-                      {designer?.length ? (
-                        designer.map((d) => (
-                          <SelectItem key={`designer-list-item-${d.id}`} value={String(d.id)}>
-                            {d.name}
-                          </SelectItem>
-                        ))
-                      ) : (
-                        <p>No designers available</p>
-                      )}
-                    </SelectGroup>
-                  </SelectContent>
-                </Select>
-              </div>
+              <Select
+                onValueChange={(value) => handleSelectItem("designer", value)}
+                value={selectedDesigner}
+              >
+                <SelectTrigger className="w-full">
+                  <SelectValue placeholder="Select a Designer" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectGroup>
+                    {designer?.length ? (
+                      designer.map((d) => (
+                        <SelectItem
+                          key={`designer-list-item-${d.id}`}
+                          value={String(d.id)}
+                        >
+                          {d.name}
+                        </SelectItem>
+                      ))
+                    ) : (
+                      <p>No designers available</p>
+                    )}
+                  </SelectGroup>
+                </SelectContent>
+              </Select>
 
               {/* Select Design */}
-              <div className="mb-4">
-                <label className="block mb-2 text-sm">Design</label>
-                <Select onValueChange={(value) => setSelectedDesign(value)} value={selectedDesign}>
-                  <SelectTrigger className="w-full">
-                    <SelectValue placeholder="Select a Design" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectGroup>
-                      {desings?.length ? (
-                        desings.map((d) => (
-                          <SelectItem key={`design-list-item-${d.id}`} value={String(d.id)}>
-                            {d.title}
-                          </SelectItem>
-                        ))
-                      ) : (
-                        <p>No designs available</p>
-                      )}
-                    </SelectGroup>
-                  </SelectContent>
-                </Select>
-              </div>
+              <Select
+                onValueChange={(value) => handleSelectItem("design", value)}
+                value={selectedDesign}
+              >
+                <SelectTrigger className="w-full">
+                  <SelectValue placeholder="Select a Design" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectGroup>
+                    {desings?.length ? (
+                      desings.map((d) => (
+                        <SelectItem
+                          key={`design-list-item-${d.id}`}
+                          value={String(d.id)}
+                        >
+                          {d.title}
+                        </SelectItem>
+                      ))
+                    ) : (
+                      <p>No designs available</p>
+                    )}
+                  </SelectGroup>
+                </SelectContent>
+              </Select>
 
               {/* Botón de guardar */}
               <DialogFooter>
-                <Button
+                <button
                   type="submit"
-                  disabled={!selectedDesigner || !selectedDesign}
+                  className="bg-blue-500 text-white px-4 py-2 rounded"
                 >
                   Save
-                </Button>
+                </button>
               </DialogFooter>
             </form>
           </DialogContent>
         </Dialog>
       </div>
-      </div>
-      <section>
 
+      <section>
       <div className="grid grid-cols-2 gap-4  ">
         {desings?.map((desing) => (
           <ProjectsLibrary
