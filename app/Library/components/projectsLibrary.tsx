@@ -1,9 +1,9 @@
 "use client";
 import React, { FC, useEffect, useState } from "react";
 import { createClient } from "@/utils/supabase/client";
-import { createDesign } from "@/app/actions"; // Update the path to the correct location of the actions file
+
 import { CardBody, CardContainer, CardItem } from "@/components/ui/3d-card";
-import { cn } from "@/lib/utils";
+
 import {
   Dialog,
   DialogDescription,
@@ -17,16 +17,7 @@ import {
   DialogHeader,
 } from "@/components/ui/dialog";
 import { FileUpload } from "@/components/ui/file-upload";
-import { Input } from "@/components/ui/input"; // Replace with the correct path to your Input component
-import {
-  Select,
-  SelectContent,
-  SelectGroup,
-  SelectItem,
-  SelectLabel,
-  SelectTrigger,
-  SelectValue,
-} from "@radix-ui/react-select";
+import { Input } from "@/components/ui/input"; 
 
 type Desing = {
   id: number;
@@ -45,6 +36,8 @@ export const ProjectsLibrary: FC<DesingItemsProps> = ({
   description,
   URLImg,
 }) => {
+
+  
   const [files, setFiles] = useState<File[]>([]);
   const handleFileUpload = (files: File[]) => {
     setFiles(files);
@@ -89,32 +82,61 @@ export const ProjectsLibrary: FC<DesingItemsProps> = ({
   
     const updatedTitle = titleInput?.value;
     const updatedDescription = descriptionInput?.value;
-    const imageFile = files[0]; // ✅ Usamos el estado
+    const imageFile = files[0];
   
     if (!titleInput || !descriptionInput) {
       console.error("Title or description input not found");
       return;
     }
   
+    if (imageFile && !imageFile.type.startsWith("image/")) {
+      console.error("Invalid file type. Only images are allowed.");
+      return;
+    }
+  
+    console.log("File to upload:", imageFile);
+  
     const updateDesign = async () => {
       try {
         const supabase = await createClient();
-        let imageUrl = null;
+        let imageUrl = URLImg; // Use the existing URL as default
   
+        // Step 1: Delete the old image if a new one is provided
+        if (imageFile && URLImg) {
+          const filePath = URLImg.split("/").slice(-1)[0]; // Extract the file path from the URL
+          const { error: deleteError } = await supabase.storage
+            .from("design-images")
+            .remove([filePath]);
+  
+          if (deleteError) {
+            console.error("Error deleting old image:", deleteError);
+          } else {
+            console.log("Old image deleted successfully");
+          }
+        }
+  
+        // Step 2: Upload the new image
         if (imageFile) {
+          const sanitizedFileName = imageFile.name.replace(/[^a-zA-Z0-9.]/g, "_");
+          const filePath = `designs/${Date.now()}_${sanitizedFileName}`;
           const { data: uploadData, error: uploadError } = await supabase.storage
             .from("design-images")
-            .upload(`designs/${Date.now()}_${imageFile.name}`, imageFile);
+            .upload(filePath, imageFile);
   
-          if (uploadError) throw uploadError;
+          if (uploadError) {
+            console.error("Error uploading new image:", uploadError);
+            throw uploadError;
+          }
   
           const { data: publicUrlData } = supabase.storage
             .from("design-images")
             .getPublicUrl(uploadData.path);
   
           imageUrl = publicUrlData.publicUrl;
+          console.log("New image uploaded successfully:", imageUrl);
         }
   
+        // Step 3: Update the database
         const { error } = await supabase
           .from("desings")
           .update({
@@ -124,13 +146,18 @@ export const ProjectsLibrary: FC<DesingItemsProps> = ({
           })
           .eq("id", id);
   
-        if (error) throw error;
+        if (error) {
+          console.error("Error updating design:", error);
+          throw error;
+        }
   
         console.log(`Design with ID ${id} updated successfully`);
         onRefresh();
       } catch (error) {
-        console.error("Error updating design:", JSON.stringify(error, null, 2));
-
+        console.error("Error updating design:", error);
+        if (error instanceof Error) {
+          console.error("Error message:", error.message);
+        }
       }
     };
     console.log("ID to update:", id);

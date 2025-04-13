@@ -160,9 +160,7 @@ export default function Home() {
       console.log(`Design ${design_id} assigned to designer ${selectedDesigner}`);
   
       // ✅ Clear state & close dialog
-      setSelectedDesign("");
-      setSelectedDesigner("");
-      setIsDialogOpen(false);
+
       onRefresh();
     } catch (error) {
       console.error("Error assigning design:", error instanceof Error ? error.message : JSON.stringify(error));
@@ -236,7 +234,7 @@ export default function Home() {
             </Button>
           </DialogTrigger>
 
-          <DialogContent className="sm:max-w-[425px]">
+          <DialogContent className="lg:max-w-[800px] sm:max-w-[600px]">
             <DialogHeader>
               <DialogTitle>Assign Design</DialogTitle>
               <DialogDescription>
@@ -244,69 +242,83 @@ export default function Home() {
               </DialogDescription>
             </DialogHeader>
 
-            {/* Select Designer */}
-            <div className="mb-4">
-              <label className="block mb-2 text-sm">Designer</label>
-              <Select
-                onValueChange={setSelectedDesigner}
-                value={selectedDesigner}
-              >
-                <SelectTrigger className="w-full">
-                  <SelectValue placeholder="Select a Designer" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectGroup>
-                    {designer?.map((d) => (
-                      <SelectItem
-                        key={`designer-list-item-${d.id}`}
-                        value={String(d.id)}
-                      >
-                        {d.name}
-                      </SelectItem>
-                    ))}
-                  </SelectGroup>
-                </SelectContent>
-              </Select>
-            </div>
+            <form
+              onSubmit={async (e) => {
+                e.preventDefault();
+                console.log("Selected Designer:", selectedDesigner);
+                console.log("Selected Design:", selectedDesign);
 
-            {/* Select Design */}
-            <div className="mb-4">
-              <label className="block mb-2 text-sm">Design</label>
-              <Select onValueChange={setSelectedDesign} value={selectedDesign}>
-                <SelectTrigger className="w-full">
-                  <SelectValue placeholder="Select a Design" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectGroup>
-                    {desings?.map((d) => (
-                      <SelectItem
-                        key={`design-list-item-${d.id}`}
-                        value={String(d.id)}
-                      >
-                        {d.title}
-                      </SelectItem>
-                    ))}
-                  </SelectGroup>
-                </SelectContent>
-              </Select>
-            </div>
+                if (!selectedDesigner || !selectedDesign) {
+                  console.error("Designer or design not selected");
+                  return;
+                }
 
-            <DialogFooter>
-              <Button
-                type="button"
-                disabled={!selectedDesigner || !selectedDesign}
-                onClick={async () => {
-                  await handleAssign(parseInt(selectedDesign));
-                }}
-              >
-                Save
-              </Button>
-            </DialogFooter>
+                await handleAssign(parseInt(selectedDesign));
+              }}
+            >
+              {/* Select Designer */}
+              <div className="mb-4">
+                <label className="block mb-2 text-sm">Designer</label>
+                <Select onValueChange={(value) => setSelectedDesigner(value)} value={selectedDesigner}>
+                  <SelectTrigger className="w-full">
+                    <SelectValue placeholder="Select a Designer" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectGroup>
+                      {designer?.length ? (
+                        designer.map((d) => (
+                          <SelectItem key={`designer-list-item-${d.id}`} value={String(d.id)}>
+                            {d.name}
+                          </SelectItem>
+                        ))
+                      ) : (
+                        <p>No designers available</p>
+                      )}
+                    </SelectGroup>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              {/* Select Design */}
+              <div className="mb-4">
+                <label className="block mb-2 text-sm">Design</label>
+                <Select onValueChange={(value) => setSelectedDesign(value)} value={selectedDesign}>
+                  <SelectTrigger className="w-full">
+                    <SelectValue placeholder="Select a Design" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectGroup>
+                      {desings?.length ? (
+                        desings.map((d) => (
+                          <SelectItem key={`design-list-item-${d.id}`} value={String(d.id)}>
+                            {d.title}
+                          </SelectItem>
+                        ))
+                      ) : (
+                        <p>No designs available</p>
+                      )}
+                    </SelectGroup>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              {/* Botón de guardar */}
+              <DialogFooter>
+                <Button
+                  type="submit"
+                  disabled={!selectedDesigner || !selectedDesign}
+                >
+                  Save
+                </Button>
+              </DialogFooter>
+            </form>
           </DialogContent>
         </Dialog>
       </div>
       </div>
-      <div className="grid grid-cols-2 gap-4 ">
+      <section>
+
+      <div className="grid grid-cols-2 gap-4  ">
         {desings?.map((desing) => (
           <ProjectsLibrary
             URLImg={""}
@@ -315,6 +327,7 @@ export default function Home() {
           />
         ))}
       </div>
+      </section>
 
       
     </main>
