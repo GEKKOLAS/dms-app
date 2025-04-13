@@ -39,7 +39,11 @@ DesignersApp es una aplicación diseñada para gestionar diseños y asignarlos a
     ```
     Reemplaza `tu_supabase_url` y `tu_supabase_anon_key` con las credenciales de tu proyecto en Supabase.
 
-5. Ejecuta la aplicación:
+
+5. Es necesario crear una cuenta en supabase asi como un proyecto para establecer la relacion de la base de datos segun quieas manipularlo en todo caso abajo dejo un esquema de las tablas y sus relaciones usar uid y no id para establecer public user  desde auth.user
+
+
+6. Ejecuta la aplicación:
     ```bash
     npm run dev
     ```
@@ -59,6 +63,11 @@ DesignersApp es una aplicación diseñada para gestionar diseños y asignarlos a
 4. Asigna diseños a diseñadores:
    - Selecciona un diseñador y un diseño desde los menús desplegables.
    - Haz clic en **Save** para completar la asignación.
+
+![Screenshot 2025-04-13 023307](https://github.com/user-attachments/assets/4bc7d0fa-bd08-4ac5-97fb-21b1d38a1f79)
+
+
+![Screenshot 2025-04-13 023453](https://github.com/user-attachments/assets/8a3ef41b-a632-4916-ae21-38304fab0f3b)
 
 ---
 
