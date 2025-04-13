@@ -68,26 +68,9 @@ Inicia el servidor de desarrollo:
 
 npm run dev
 
-DesignersApp/
-├── app/
-│   ├── Library/
-│   │   ├── components/
-│   │   │   └── projectsLibrary.tsx
-│   │   └── page.tsx
-├── components/
-│   ├── ui/
-│   │   ├── button.tsx
-│   │   ├── dialog.tsx
-│   │   ├── form.tsx
-│   │   └── input.tsx
-├── utils/
-│   └── supabase/
-│       └── client.ts
-├── public/
-├── styles/
-├── .env.local
-├── package.json
-└── README.md
+# Estructura de Directorios de DesignersApp
+
+
 
 Dependencias Principales
 React: Biblioteca para construir interfaces de usuario.
