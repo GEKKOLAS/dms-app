@@ -17,7 +17,7 @@ DesignersApp es una aplicación diseñada para gestionar diseños y asignarlos a
 
 1. Clona este repositorio:
     ```bash
-    [git clone https://github.com/tu-usuario/DesignersApp.git](https://github.com/GEKKOLAS/dms-app.git)
+    git clone https://github.com/tu-usuario/DesignersApp.git](https://github.com/GEKKOLAS/dms-app.git
     ```
 
 2. Navega al directorio del proyecto:
