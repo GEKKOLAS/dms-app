@@ -1,104 +1,99 @@
-<a href="https://demo-nextjs-with-supabase.vercel.app/">
-  <img alt="Next.js and Supabase Starter Kit - the fastest way to build apps with Next.js and Supabase" src="https://demo-nextjs-with-supabase.vercel.app/opengraph-image.png">
-  <h1 align="center">Next.js and Supabase Starter Kit</h1>
-</a>
+# DesignersApp 🎨
 
-<p align="center">
- The fastest way to build apps with Next.js and Supabase
-</p>
+DesignersApp es una aplicación diseñada para gestionar diseños y asignarlos a diseñadores. Ideal para equipos creativos que desean organizar sus proyectos y asignar tareas de manera eficiente.
 
-<p align="center">
-  <a href="#features"><strong>Features</strong></a> ·
-  <a href="#demo"><strong>Demo</strong></a> ·
-  <a href="#deploy-to-vercel"><strong>Deploy to Vercel</strong></a> ·
-  <a href="#clone-and-run-locally"><strong>Clone and run locally</strong></a> ·
-  <a href="#feedback-and-issues"><strong>Feedback and issues</strong></a>
-  <a href="#more-supabase-examples"><strong>More Examples</strong></a>
-</p>
-<br/>
+---
 
-## Features
+## Características 🚀
 
-- Works across the entire [Next.js](https://nextjs.org) stack
-  - App Router
-  - Pages Router
-  - Middleware
-  - Client
-  - Server
-  - It just works!
-- supabase-ssr. A package to configure Supabase Auth to use cookies
-- Styling with [Tailwind CSS](https://tailwindcss.com)
-- Components with [shadcn/ui](https://ui.shadcn.com/)
-- Optional deployment with [Supabase Vercel Integration and Vercel deploy](#deploy-your-own)
-  - Environment variables automatically assigned to Vercel project
+- 🖌️ **Gestión de Diseños**: Crea, lista y administra diseños con títulos y descripciones.
+- 👩‍🎨 **Asignación de Diseñadores**: Asigna diseños a diseñadores desde una lista de opciones.
+- 📋 **Vista de Proyectos**: Explora todos los diseños disponibles en una vista organizada.
+- 🌟 **Interfaz Moderna**: Utiliza componentes de UI accesibles y personalizables basados en Radix UI.
 
-## Demo
+---
 
-You can view a fully working demo at [demo-nextjs-with-supabase.vercel.app](https://demo-nextjs-with-supabase.vercel.app/).
+## Instalación ⚙️
 
-## Deploy to Vercel
+1. Clona este repositorio:
+    ```bash
+    git clone https://github.com/tu-usuario/DesignersApp.git](https://github.com/GEKKOLAS/dms-app.git
+    ```
 
-Vercel deployment will guide you through creating a Supabase account and project.
+2. Navega al directorio del proyecto:
+    ```bash
+    cd DesignersApp
+    cd dms-app
+    ```
 
-After installation of the Supabase integration, all relevant environment variables will be assigned to the project so the deployment is fully functioning.
+3. Instala las dependencias:
+    ```bash
+    npm install
+    ```
 
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fvercel%2Fnext.js%2Ftree%2Fcanary%2Fexamples%2Fwith-supabase&project-name=nextjs-with-supabase&repository-name=nextjs-with-supabase&demo-title=nextjs-with-supabase&demo-description=This+starter+configures+Supabase+Auth+to+use+cookies%2C+making+the+user%27s+session+available+throughout+the+entire+Next.js+app+-+Client+Components%2C+Server+Components%2C+Route+Handlers%2C+Server+Actions+and+Middleware.&demo-url=https%3A%2F%2Fdemo-nextjs-with-supabase.vercel.app%2F&external-id=https%3A%2F%2Fgithub.com%2Fvercel%2Fnext.js%2Ftree%2Fcanary%2Fexamples%2Fwith-supabase&demo-image=https%3A%2F%2Fdemo-nextjs-with-supabase.vercel.app%2Fopengraph-image.png)
+4. Configura las variables de entorno:
+    Crea un archivo `.env.local` en la raíz del proyecto y agrega las siguientes variables:
+    ```env
+    NEXT_PUBLIC_SUPABASE_URL=tu_supabase_url
+    NEXT_PUBLIC_SUPABASE_ANON_KEY=tu_supabase_anon_key
+    ```
+    Reemplaza `tu_supabase_url` y `tu_supabase_anon_key` con las credenciales de tu proyecto en Supabase.
 
-The above will also clone the Starter kit to your GitHub, you can clone that locally and develop locally.
+5. Ejecuta la aplicación:
+    ```bash
+    npm run dev
+    ```
 
-If you wish to just develop locally and not deploy to Vercel, [follow the steps below](#clone-and-run-locally).
+---
 
-## Clone and run locally
+## Uso 🖥️
 
-1. You'll first need a Supabase project which can be made [via the Supabase dashboard](https://database.new)
+1. Accede a la aplicación en `http://localhost:3000`.
 
-2. Create a Next.js app using the Supabase Starter template npx command
+2. Explora los diseños disponibles en la vista principal.
 
-   ```bash
-   npx create-next-app --example with-supabase with-supabase-app
-   ```
+3. Crea nuevos diseños utilizando el botón **Add Design**:
+   - Ingresa un título y una descripción para el diseño.
+   - Guarda el diseño para que aparezca en la lista.
 
-   ```bash
-   yarn create next-app --example with-supabase with-supabase-app
-   ```
+4. Asigna diseños a diseñadores:
+   - Selecciona un diseñador y un diseño desde los menús desplegables.
+   - Haz clic en **Save** para completar la asignación.
 
-   ```bash
-   pnpm create next-app --example with-supabase with-supabase-app
-   ```
+---
 
-3. Use `cd` to change into the app's directory
+## Tecnología 🔧
 
-   ```bash
-   cd with-supabase-app
-   ```
+- **Frontend**: React con componentes de Radix UI.
+- **Backend**: Supabase para la gestión de datos.
+- **Estado**: React Hook Form para formularios controlados.
 
-4. Rename `.env.example` to `.env.local` and update the following:
+---
 
-   ```
-   NEXT_PUBLIC_SUPABASE_URL=[INSERT SUPABASE PROJECT URL]
-   NEXT_PUBLIC_SUPABASE_ANON_KEY=[INSERT SUPABASE PROJECT API ANON KEY]
-   ```
+## Contribución 🤝
 
-   Both `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_ANON_KEY` can be found in [your Supabase project's API settings](https://app.supabase.com/project/_/settings/api)
+¡Ayúdanos a mejorar DesignersApp! Si quieres contribuir, sigue estos pasos:
 
-5. You can now run the Next.js local development server:
+1. Haz un fork del proyecto.
+2. Crea una nueva rama para tu mejora:
+    ```bash
+    git checkout -b mi-mejora
+    ```
+3. Haz tus cambios y realiza un commit:
+    ```bash
+    git commit -m "Descripción de la mejora"
+    ```
+4. Envía un pull request con tus cambios.
 
-   ```bash
-   npm run dev
-   ```
+---
 
-   The starter kit should now be running on [localhost:3000](http://localhost:3000/).
+## Créditos 👏
 
-6. This template comes with the default shadcn/ui style initialized. If you instead want other ui.shadcn styles, delete `components.json` and [re-install shadcn/ui](https://ui.shadcn.com/docs/installation/next)
+- Desarrollado por Nicolás y su equipo.
+- Inspirado en la necesidad de organizar proyectos creativos de manera eficiente.
 
-> Check out [the docs for Local Development](https://supabase.com/docs/guides/getting-started/local-development) to also run Supabase locally.
+---
 
-## Feedback and issues
+## Licencia 📝
 
-Please file feedback and issues over on the [Supabase GitHub org](https://github.com/supabase/supabase/issues/new/choose).
-
-## More Supabase examples
-
-- [Next.js Subscription Payments Starter](https://github.com/vercel/nextjs-subscription-payments)
-- [Cookie-based Auth and the Next.js 13 App Router (free course)](https://youtube.com/playlist?list=PL5S4mPUpp4OtMhpnp93EFSo42iQ40XjbF)
-- [Supabase Auth and the Next.js App Router](https://github.com/supabase/supabase/tree/master/examples/auth/nextjs)
+Este proyecto está bajo la licencia MIT. Consulta el archivo `LICENSE` para más detalles.
